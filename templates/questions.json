@@ -1,0 +1,125 @@
+[
+  {
+    "name": "gendered_style",
+    "query": {
+      "head": "select ?person ?style ?gendered_pronoun ?body_part_label",
+      "query": [
+        "?has_style rdfs:subPropertyOf <http://schema.org/style>",
+        "?body_part ?has_style ?style",
+        "?body_part a/rdfs:label ?body_part_label",
+        "?person ?has ?body_part",
+        "?person <http://schema.org/gender> ?gender",
+        "bind(if(?gender=<http://schema.org/Male>, \"his\", \"her\") as ?gendered_pronoun)"
+      ],
+      "tail": ""
+    },
+    "question": "what is ?gendered_pronoun ?body_part_label style",
+    "answer": "?gendered_pronoun ?body_part_label is ?style"
+  },
+  {
+    "name": "gendered_style",
+    "query": {
+      "head": "select ?person ?wearable ?gendered_pronoun",
+      "query": [
+        "?person <http://schema.org/wearing> ?wearable",
+        "?person <http://schema.org/gender> ?gender",
+        "bind(if(?gender=<http://schema.org/Male>, \"he\", \"she\") as ?gendered_pronoun)"
+      ],
+      "tail": ""
+    },
+    "question": "is ?gendered_pronoun wearing a ?wearable",
+    "answer": "yes, ?gendered_pronoun is wearing a ?wearable"
+  },
+  {
+    "name": "gendered_colour",
+    "query": {
+      "head": "",
+      "query": [],
+      "tail":""
+    },
+    "question": "what colour is ?gendered_pronoun ?coloured_thing",
+    "answer": "?gendered_pronoun ?coloured_thing is ?colour"
+  },
+  {
+    "name": "person_attribute",
+    "query": {
+      "head": "select ?person ?attribute_label ?is_or_is_not",
+      "query": [
+        "?person a <http://schema.org/Person>",
+        "?person ?person_attribute ?answer",
+        "?person_attribute rdfs:range <http://schema.org/Boolean>",
+        "?person_attribute rdfs:label ?attribute_label",
+        "bind(if(?answer=<http://schema.org/True>, \"is\", \"is not\") as ?is_or_is_not)"
+      ],
+      "tail":""
+    } ,
+    "question": "is this person ?attribute_label",
+    "answer": "this person ?is_or_is_not ?attribute_label"
+  },
+  {
+    "name": "gendered_attribute",
+    "query": {
+      "head": "select ?person ?attribute_label ?is_or_is_not ?gendered_pronoun ?confirm_deny",
+      "query": [
+        "?person a <http://schema.org/Person>",
+        "?person ?person_attribute ?answer",
+        "?person <http://schema.org/gender> ?gender",
+        "?person_attribute rdfs:range <http://schema.org/Boolean>",
+        "?person_attribute rdfs:label ?attribute_label",
+        "bind(if(?answer=<http://schema.org/True>, \"is\", \"is not\") as ?is_or_is_not)",
+        "bind(if(?gender=<http://schema.org/Male>, \"he\", \"she\") as ?gendered_pronoun)",
+        "bind(if(?answer=<http://schema.org/True>, \"yes\", \"no\") as ?confirm_deny)"
+      ],
+      "tail":""
+    } ,
+    "question": "is ?gendered_pronoun ?attribute_label",
+    "answer": "?confirm_deny, ?gendered_pronoun ?is_or_is_not ?attribute_label"
+  },
+  {
+    "name": "confirm_gender_male",
+    "query": {
+      "head": "select ?person ?is_or_is_not ?confirm_deny",
+      "query": [
+        "?person a <http://schema.org/Person>",
+        "?person <http://schema.org/gender> ?gender",
+        "bind(if(?gender=<http://schema.org/Male>, \"is\", \"is not\") as ?is_or_is_not)",
+        "bind(if(?gender=<http://schema.org/Male>, \"yes\", \"no\") as ?confirm_deny)"
+      ],
+      "tail":""
+    },
+    "question": "is this person male",
+    "answer": "?confirm_deny, this person ?is_or_is_not male"
+  },
+  {
+    "name": "confirm_gender_female",
+    "query": {
+      "head": "select ?person ?is_or_is_not ?confirm_deny",
+      "query": [
+        "?person a <http://schema.org/Person>",
+        "?person <http://schema.org/gender> ?gender",
+        "bind(if(?gender=<http://schema.org/Female>, \"is\", \"is not\") as ?is_or_is_not)",
+        "bind(if(?gender=<http://schema.org/Female>, \"yes\", \"no\") as ?confirm_deny)"
+      ],
+      "tail":""
+    },
+    "question": "is this person female",
+    "answer": "?confirm_deny, this person ?is_or_is_not female"
+  },
+  {
+    "name": "gendered_color",
+    "query": {
+      "head": "select ?person ?colour ?gendered_pronoun ?body_part_label",
+      "query": [
+        "?has_color rdfs:subPropertyOf <http://schema.org/color>",
+        "?body_part ?has_color ?color",
+        "?body_part a/rdfs:label ?body_part_label",
+        "?person ?has ?body_part",
+        "?person <http://schema.org/gender> ?gender",
+        "bind(if(?gender=<http://schema.org/Male>, \"his\", \"her\") as ?gendered_pronoun)"
+      ],
+      "tail": ""
+    },
+    "question": "what is ?gendered_pronoun ?body_part_label color",
+    "answer": "?gendered_pronoun ?body_part_label is ?color"
+  }
+]

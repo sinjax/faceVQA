@@ -1,8 +1,0 @@
-README
-setup.py
-faceVQA.egg-info/PKG-INFO
-faceVQA.egg-info/SOURCES.txt
-faceVQA.egg-info/dependency_links.txt
-faceVQA.egg-info/requires.txt
-faceVQA.egg-info/top_level.txt
-facevqa/__init__.py

@@ -152,39 +152,48 @@ def _prepare_ontology(sink):
 
     sink.add((schema_ns.hasHead,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasHead,RDFS.range,schema_ns.Head))
+    sink.add((schema_ns.Head,RDFS.label,string_literal("head")))
 
     sink.add((schema_ns.hasEyes,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasEyes,RDFS.range,schema_ns.Eyes))
+    sink.add((schema_ns.Eyes,RDFS.label,string_literal("eyes")))
 
     sink.add((schema_ns.hasEyebrows,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasEyebrows,RDFS.range,schema_ns.Eyebrows))
+    sink.add((schema_ns.Eyebrows,RDFS.label,string_literal("eyebrows")))
 
     sink.add((schema_ns.hasFace,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasFace,RDFS.range,schema_ns.Face))
 
     sink.add((schema_ns.hasFacialHair,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasFacialHair,RDFS.range,schema_ns.FacialHair))
+    sink.add((schema_ns.FacialHair,RDFS.label,string_literal("facial hair")))
 
     sink.add((schema_ns.hasNose,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasNose,RDFS.range,schema_ns.Nose))
+    sink.add((schema_ns.Nose,RDFS.label,string_literal("nose")))
 
     sink.add((schema_ns.hasMouth,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasMouth,RDFS.range,schema_ns.Mouth))
+    sink.add((schema_ns.Mouth,RDFS.label,string_literal("mouth")))
 
     # Black_Hair Blond_Hair Brown_Hair Gray_Hair
     sink.add((schema_ns.hairColor, RDFS.subPropertyOf, schema_ns.color))
     sink.add((schema_ns.hairColor, RDFS.domain, schema_ns.Head))
     sink.add((schema_ns.hairColor, RDFS.range, XSD.string))
+    sink.add((schema_ns.hairColour,RDFS.label,string_literal("hair colour")))
 
     # Receding_Hairline Bald Bangs
     sink.add((schema_ns.hairStyle, RDFS.subPropertyOf, schema_ns.style))
     sink.add((schema_ns.hairStyle, RDFS.domain, schema_ns.Head))
     sink.add((schema_ns.hairStyle, RDFS.range, XSD.string))
+    sink.add((schema_ns.hairStyle,RDFS.label,string_literal("hair style")))
 
     # Straight_Hair Wavy_Hair
     sink.add((schema_ns.hairShape, RDFS.subPropertyOf, schema_ns.shape))
     sink.add((schema_ns.hairShape, RDFS.domain, schema_ns.Head))
     sink.add((schema_ns.hairShape, RDFS.range, XSD.string))
+    sink.add((schema_ns.hairShape,RDFS.label,string_literal("hair shape")))
 
     # Eyeglasses
     sink.add((schema_ns.isWearingGlasses, RDFS.domain, schema_ns.Eyes))
@@ -235,6 +244,7 @@ def _prepare_ontology(sink):
     sink.add((schema_ns.facialHairStyle, RDFS.domain, schema_ns.FacialHair))
     sink.add((schema_ns.facialHairStyle, RDFS.range, XSD.string))
     sink.add((schema_ns.facialHairStyle, RDFS.subPropertyOf, schema_ns.style))
+    sink.add((schema_ns.facialHairStyle,RDFS.label,string_literal("facial hair style")))
 
     # Pointy_Nose
     sink.add((schema_ns.noseShape, RDFS.domain, schema_ns.Nose))
@@ -245,16 +255,23 @@ def _prepare_ontology(sink):
     sink.add((schema_ns.noseStyle, RDFS.domain, schema_ns.Nose))
     sink.add((schema_ns.noseStyle, RDFS.range, XSD.string))
     sink.add((schema_ns.noseStyle, RDFS.subPropertyOf, schema_ns.style))
+    sink.add((schema_ns.noseStyle,RDFS.label,string_literal("nose style")))
 
     # Mouth_Slightly_Open Smiling
     sink.add((schema_ns.mouthConfiguration, RDFS.domain, schema_ns.Mouth))
     sink.add((schema_ns.mouthConfiguration, RDFS.range, XSD.string))
-    sink.add((schema_ns.mouthConfiguration, RDFS.subPropertyOf, schema_ns.style))
+    sink.add((schema_ns.mouthConfiguration,RDFS.label,string_literal("mouth configuration")))
 
     # Big_Lips
     sink.add((schema_ns.mouthShape, RDFS.domain, schema_ns.Mouth))
     sink.add((schema_ns.mouthShape, RDFS.range, XSD.string))
     sink.add((schema_ns.mouthShape, RDFS.subPropertyOf, schema_ns.style))
+    sink.add((schema_ns.mouthShape,RDFS.label,string_literal("mouth style")))
+
+    sink.add((schema_ns.attractive, RDFS.label, string_literal("attractive")))
+    sink.add((schema_ns.blurry, RDFS.label, string_literal("blurry")))
+    sink.add((schema_ns.chubby, RDFS.label, string_literal("chubby")))
+    sink.add((schema_ns.heavyMakeup, RDFS.label, string_literal("wearing heavy makeup")))
 
 class CelebAParser(Parser):
 
@@ -267,20 +284,19 @@ class CelebAParser(Parser):
         sink.bind("rdfs", RDFS)
 
         _prepare_ontology(sink)
-        lines = source.getByteStream()
-        count = int(lines.readline())
-        headings = lines.readline().strip().split(" ")
-        lines = [x for x in lines][:1000]
-        for x in lines:
-            parts = [x for x in filter(None, x.strip().split(" "))]
-            jpeg = parts[0]
-            raw_anns = parts[1:]
-            annotations = dict([
-               (headings[i],int(raw_anns[i]) == 1) for i in range(len(headings))
-            ])
-            self._add_person(sink, jpeg, annotations)
-
-        print(len([x for x in lines]) == count)
+        # lines = source.getByteStream()
+        # count = int(lines.readline())
+        # headings = lines.readline().strip().split(" ")
+        # for x in lines:
+        #     parts = [x for x in filter(None, x.strip().split(" "))]
+        #     jpeg = parts[0]
+        #     raw_anns = parts[1:]
+        #     annotations = dict([
+        #        (headings[i],int(raw_anns[i]) == 1) for i in range(len(headings))
+        #     ])
+        #     self._add_person(sink, jpeg, annotations)
+        #
+        # print(len([x for x in lines]) == count)
 
     def _add_person(self, sink, jpeg, annotations):
         person = URIRef(celeba_ns[jpeg])
@@ -306,11 +322,6 @@ if __name__ == '__main__':
     g = Graph()
     text_io_wrapper = open("/Users/ss/Data/celeba/list_attr_celeba.txt", "r")
     g.parse(text_io_wrapper, format="celeba")
-    print(str(g.serialize(),"utf-8"))
-
-    res = g.query("""
-        select ?x WHERE {
-            ?x rdfs:range schema:Head
-        }
-    """)
+    print(g.serialize(format="nt").decode("utf8"))
+    # g.serialize("/Users/ss/Data/celeba/list_attr_celeba.rdf.xml")
 
