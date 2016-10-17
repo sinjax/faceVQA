@@ -2,6 +2,7 @@ import json
 
 from pymantic import sparql
 from rdflib import Graph
+import random
 
 
 def _from_dict(target, d):
@@ -65,7 +66,7 @@ class Question(object):
 
 
 class BalzeGraphConnector(object):
-    def __init__(self,host="192.168.0.3:9999", namespace="kb"):
+    def __init__(self,host="192.168.0.3:9999", namespace="celeba"):
         sparql_server = "http://%(host)s/blazegraph/namespace/%(namespace)s/sparql"%locals()
         self.server = sparql.SPARQLServer(sparql_server)
         super().__init__()
@@ -114,18 +115,20 @@ def _as_uri(param):
 
 
 if __name__ == '__main__':
-    connector = BalzeGraphConnector()
+    connector = BalzeGraphConnector(host="172.24.203.150:9999")
     gen = QuestionGenerator("templates/questions.json", connector)
     people = gen.list_people()
-    one_person = _as_uri(people["results"]["bindings"][0]["person"])
-    for person in people["results"]["bindings"][:100]:
+    people = people["results"]["bindings"]
+    random.shuffle(people)
+    for person in people[:1000]:
         person_uri = _as_uri(person["person"])
         for person_question_answers in gen.generate_questions(person_uri):
-            print("""%(person)s"""%person_question_answers)
             for question_answers in person_question_answers["question_answers"]:
                 if len(question_answers) == 0: continue
-                print("""   %(name)s"""%question_answers[0])
                 for question_answer in question_answers:
-                    print("""      %(question)s?   %(answer)s"""%question_answer)
-
-
+                    print("%s\t%s\t%s\t%s"%(
+                        person_question_answers["person"],
+                        question_answer["name"],
+                        question_answer["question"],
+                        question_answer["answer"]
+                    ))

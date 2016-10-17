@@ -108,7 +108,7 @@
   {
     "name": "gendered_color",
     "query": {
-      "head": "select ?person ?colour ?gendered_pronoun ?body_part_label",
+      "head": "select ?person ?color ?gendered_pronoun ?body_part_label",
       "query": [
         "?has_color rdfs:subPropertyOf <http://schema.org/color>",
         "?body_part ?has_color ?color",

@@ -41,11 +41,11 @@ def _hair_shape(annotations):
 
 def _create_head(annotations, sink):
     head = BNode()
-    sink.add((head, RDF.type, schema_ns.Head))
+    sink.add((head, RDF.type, schema_ns.Hair))
     colour = _hair_colour(annotations)
     style = _hair_style(annotations)
     shape = _hair_shape(annotations)
-    if colour: sink.add((head, schema_ns.hairColour, colour))
+    if colour: sink.add((head, schema_ns.hairColor, colour))
     if style: sink.add((head, schema_ns.hairStyle, style))
     if shape: sink.add((head, schema_ns.hairShape, shape))
     return head
@@ -56,11 +56,11 @@ def _add_wearing(person, annotations, sink):
     if annotations[Wearing_Lipstick]: sink.add((person, schema_ns.wearing, string_literal("lipstick")))
     if annotations[Wearing_Necklace]: sink.add((person, schema_ns.wearing, string_literal("necklace")))
     if annotations[Wearing_Necktie]: sink.add((person, schema_ns.wearing, string_literal("necktie")))
+    if annotations[Eyeglasses]: sink.add((person, schema_ns.wearing, string_literal("glasses")))
 
 def _create_eyes(annotations, sink):
     eyes = BNode()
     sink.add((eyes, RDF.type, schema_ns.Eyes))
-    sink.add((eyes,schema_ns.isWearingGlasses,is_x(annotations,Eyeglasses)))
     sink.add((eyes,schema_ns.areThin,is_x(annotations,Narrow_Eyes)))
     sink.add((eyes,schema_ns.haveBags,is_x(annotations,Bags_Under_Eyes)))
     return eyes
@@ -85,9 +85,13 @@ def _create_face(annotations, sink):
     face = BNode()
     sink.add((face, RDF.type, schema_ns.Face))
     if annotations[Oval_Face]: sink.add((face, schema_ns.faceShape, string_literal("oval")))
-    sink.add((face, schema_ns.complextion, is_x(annotations,Pale_Skin)))
+    sink.add((face, schema_ns.paleComplextion, is_x(annotations,Pale_Skin)))
     sink.add((face, schema_ns.doubleChin, is_x(annotations, Double_Chin)))
     sink.add((face, schema_ns.cheeks, _create_cheeks(annotations, sink)))
+    if annotations[Pale_Skin]:
+        sink.add((face, schema_ns.skinColor, string_literal("light")))
+    else:
+        sink.add((face, schema_ns.skinColor, string_literal("dark")))
     return face
 
 
@@ -150,9 +154,14 @@ def _prepare_ontology(sink):
     sink.add((schema_ns.age, RDFS.domain, schema_ns.Person))
     sink.add((schema_ns.age, RDFS.range, XSD.string))
 
-    sink.add((schema_ns.hasHead,RDFS.domain,schema_ns.Person))
-    sink.add((schema_ns.hasHead,RDFS.range,schema_ns.Head))
-    sink.add((schema_ns.Head,RDFS.label,string_literal("head")))
+    sink.add((schema_ns.hasHair,RDFS.domain,schema_ns.Person))
+    sink.add((schema_ns.hasHair,RDFS.range,schema_ns.Hair))
+    sink.add((schema_ns.Hair,RDFS.label,string_literal("hair")))
+
+    sink.add((schema_ns.skinColor, RDFS.subPropertyOf, schema_ns.color))
+    sink.add((schema_ns.skinColor,RDFS.domain,schema_ns.Face))
+    sink.add((schema_ns.skinColor,RDFS.range,XSD.string))
+    sink.add((schema_ns.skinColor,RDFS.label,string_literal("skin color")))
 
     sink.add((schema_ns.hasEyes,RDFS.domain,schema_ns.Person))
     sink.add((schema_ns.hasEyes,RDFS.range,schema_ns.Eyes))
@@ -179,25 +188,21 @@ def _prepare_ontology(sink):
 
     # Black_Hair Blond_Hair Brown_Hair Gray_Hair
     sink.add((schema_ns.hairColor, RDFS.subPropertyOf, schema_ns.color))
-    sink.add((schema_ns.hairColor, RDFS.domain, schema_ns.Head))
+    sink.add((schema_ns.hairColor, RDFS.domain, schema_ns.Hair))
     sink.add((schema_ns.hairColor, RDFS.range, XSD.string))
-    sink.add((schema_ns.hairColour,RDFS.label,string_literal("hair colour")))
+    sink.add((schema_ns.hairColor,RDFS.label,string_literal("hair color")))
 
     # Receding_Hairline Bald Bangs
     sink.add((schema_ns.hairStyle, RDFS.subPropertyOf, schema_ns.style))
-    sink.add((schema_ns.hairStyle, RDFS.domain, schema_ns.Head))
+    sink.add((schema_ns.hairStyle, RDFS.domain, schema_ns.Hair))
     sink.add((schema_ns.hairStyle, RDFS.range, XSD.string))
     sink.add((schema_ns.hairStyle,RDFS.label,string_literal("hair style")))
 
     # Straight_Hair Wavy_Hair
     sink.add((schema_ns.hairShape, RDFS.subPropertyOf, schema_ns.shape))
-    sink.add((schema_ns.hairShape, RDFS.domain, schema_ns.Head))
+    sink.add((schema_ns.hairShape, RDFS.domain, schema_ns.Hair))
     sink.add((schema_ns.hairShape, RDFS.range, XSD.string))
     sink.add((schema_ns.hairShape,RDFS.label,string_literal("hair shape")))
-
-    # Eyeglasses
-    sink.add((schema_ns.isWearingGlasses, RDFS.domain, schema_ns.Eyes))
-    sink.add((schema_ns.isWearingGlasses, RDFS.range, schema_ns.Boolean))
 
     # Narrow_Eyes
     sink.add((schema_ns.areThin, RDFS.domain, schema_ns.Eyes))
@@ -216,8 +221,8 @@ def _prepare_ontology(sink):
     sink.add((schema_ns.arched, RDFS.range, schema_ns.Boolean))
 
     # Pale_Skin
-    sink.add((schema_ns.complextion, RDFS.domain, schema_ns.Face))
-    sink.add((schema_ns.complextion, RDFS.range, schema_ns.Boolean))
+    sink.add((schema_ns.paleComplextion, RDFS.domain, schema_ns.Face))
+    sink.add((schema_ns.paleComplextion, RDFS.range, schema_ns.Boolean))
 
     # Oval_Face
     sink.add((schema_ns.faceShape, RDFS.subPropertyOf, schema_ns.shape))
@@ -284,19 +289,19 @@ class CelebAParser(Parser):
         sink.bind("rdfs", RDFS)
 
         _prepare_ontology(sink)
-        # lines = source.getByteStream()
-        # count = int(lines.readline())
-        # headings = lines.readline().strip().split(" ")
-        # for x in lines:
-        #     parts = [x for x in filter(None, x.strip().split(" "))]
-        #     jpeg = parts[0]
-        #     raw_anns = parts[1:]
-        #     annotations = dict([
-        #        (headings[i],int(raw_anns[i]) == 1) for i in range(len(headings))
-        #     ])
-        #     self._add_person(sink, jpeg, annotations)
-        #
-        # print(len([x for x in lines]) == count)
+        lines = source.getByteStream()
+        count = int(lines.readline())
+        headings = lines.readline().strip().split(" ")
+        for x in lines:
+            parts = [x for x in filter(None, x.strip().split(" "))]
+            jpeg = parts[0]
+            raw_anns = parts[1:]
+            annotations = dict([
+               (headings[i],int(raw_anns[i]) == 1) for i in range(len(headings))
+            ])
+            self._add_person(sink, jpeg, annotations)
+
+        print(len([x for x in lines]) == count)
 
     def _add_person(self, sink, jpeg, annotations):
         person = URIRef(celeba_ns[jpeg])
@@ -307,7 +312,7 @@ class CelebAParser(Parser):
         sink.add((person, schema_ns.chubby, is_x(annotations, Chubby)))
         sink.add((person, schema_ns.heavyMakeup, is_x(annotations, Heavy_Makeup)))
         _add_wearing(person,annotations,sink)
-        sink.add((person, schema_ns.hasHead, _create_head(annotations,sink)))
+        sink.add((person, schema_ns.hasHair, _create_head(annotations,sink)))
         sink.add((person, schema_ns.hasEyes, _create_eyes(annotations,sink)))
         sink.add((person, schema_ns.hasEyebrows, _create_eyebrows(annotations,sink)))
         sink.add((person, schema_ns.hasFace, _create_face(annotations,sink)))
@@ -320,8 +325,6 @@ class CelebAParser(Parser):
 
 if __name__ == '__main__':
     g = Graph()
-    text_io_wrapper = open("/Users/ss/Data/celeba/list_attr_celeba.txt", "r")
+    text_io_wrapper = open("/Users/samangoo/data/celeba/list_attr_celeba.txt", "r")
     g.parse(text_io_wrapper, format="celeba")
-    print(g.serialize(format="nt").decode("utf8"))
-    # g.serialize("/Users/ss/Data/celeba/list_attr_celeba.rdf.xml")
-
+    g.serialize("/Users/samangoo/data/celeba/list_attr_celeba.ttl",format="turtle")
